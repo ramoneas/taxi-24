@@ -1,34 +1,30 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { DriverService } from './driver.service';
 import { CreateDriverDto } from './dto/create-driver.dto';
-import { UpdateDriverDto } from './dto/update-driver.dto';
+import { GetDriverCoordinatesDto, GetDriverFilterDto } from './dto/get-driver-filter.dto';
+import { Driver } from './entities/driver.entity';
 
-@Controller('driver')
+@Controller('api/driver')
 export class DriverController {
   constructor(private readonly driverService: DriverService) {}
 
   @Post()
-  create(@Body() createDriverDto: CreateDriverDto) {
+  create(@Body() createDriverDto: CreateDriverDto): Promise<Driver> {
     return this.driverService.create(createDriverDto);
   }
 
   @Get()
-  findAll() {
-    return this.driverService.findAll();
+  findAll(@Query() filterDto: GetDriverFilterDto): Promise<Driver[]> {
+    return this.driverService.findAll(filterDto);
+  }
+
+  @Get('nearby')
+  findDriverByCoordinates(@Query() coordinatesDto: GetDriverCoordinatesDto): Promise<Driver[]> {
+    return this.driverService.findDriverByCoordinates(coordinatesDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.driverService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDriverDto: UpdateDriverDto) {
-    return this.driverService.update(+id, updateDriverDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.driverService.remove(+id);
+  findOne(@Param('id') id: string): Promise<Driver> {
+    return this.driverService.findOne(id);
   }
 }

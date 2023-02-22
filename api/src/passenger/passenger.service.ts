@@ -5,6 +5,8 @@ import { Passenger } from './entities/passenger.entity';
 import { Repository } from 'typeorm';
 import { DriverService } from '../driver/driver.service';
 
+const NEAREST_DRIVERS_QTY: number = 3;
+
 @Injectable()
 export class PassengerService {
   constructor(
@@ -33,13 +35,29 @@ export class PassengerService {
     return await query.getMany();
   }
 
-  async findDriversNearby(id: string) {
+  async findDriversNearby(id: string): Promise<any[]> {
     const { coordinates } = await this.findOne(id);
+    let filterDrivers = [];
 
-    return this.driverRepository.findDriverByCoordinates({
+    const drivers = await this.driverRepository.findDriverByCoordinates({
       latitude: coordinates.split(',')[0],
       longitude: coordinates.split(',')[1],
     });
+
+    this.sortDriversByNearest(drivers);
+
+    for (const driver of drivers) {
+      if (filterDrivers.length === NEAREST_DRIVERS_QTY) {
+        return filterDrivers;
+      }
+      filterDrivers.push(driver);
+    }
+
+    return filterDrivers;
+  }
+
+  private sortDriversByNearest(drivers: any[]) {
+    drivers.sort((a, b) => (a.distanceInKm < b.distanceInKm ? -1 : 1));
   }
 
   async findOne(id: string): Promise<Passenger> {

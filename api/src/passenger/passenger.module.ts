@@ -8,6 +8,7 @@ import { DriverModule } from '../driver/driver.module';
 @Module({
   imports: [TypeOrmModule.forFeature([Passenger]), DriverModule],
   controllers: [PassengerController],
-  providers: [PassengerService]
+  providers: [PassengerService],  
+  exports: [PassengerService]
 })
 export class PassengerModule {}
