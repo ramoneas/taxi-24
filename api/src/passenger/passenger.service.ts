@@ -1,26 +1,47 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePassengerDto } from './dto/create-passenger.dto';
-import { UpdatePassengerDto } from './dto/update-passenger.dto';
+import { GetPassengerFilterDto } from './dto/get-passanger-filter.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Passenger } from './entities/passenger.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class PassengerService {
-  create(createPassengerDto: CreatePassengerDto) {
-    return 'This action adds a new passenger';
+  constructor(
+    @InjectRepository(Passenger)
+    private passengerRepository: Repository<Passenger>,
+  ) {}
+
+  async create(createPassengerDto: CreatePassengerDto): Promise<Passenger> {   
+      const { firstName, lastName, latitude, longitude, rating } = createPassengerDto;
+  
+      const passenger = this.passengerRepository.create({
+        firstName,
+        lastName,
+        rating,
+        coordinates: `${latitude},${longitude}`
+      });
+  
+      return this.passengerRepository.save(passenger);
   }
 
-  findAll() {
-    return `This action returns all passenger`;
+  async findAll(): Promise<Passenger[]> {
+    const query = this.passengerRepository.createQueryBuilder('passenger');
+
+    return await query.getMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} passenger`;
+  async findDriversNearby(passengerId: GetPassengerFilterDto) {
+    return passengerId;
   }
 
-  update(id: number, updatePassengerDto: UpdatePassengerDto) {
-    return `This action updates a #${id} passenger`;
-  }
+  async findOne(id: number): Promise<Passenger> {
+    const found = await this.passengerRepository.findOne({ where: { id } });
 
-  remove(id: number) {
-    return `This action removes a #${id} passenger`;
+    if (!found) {
+      throw new NotFoundException(`Passenger not found`);
+    }
+
+    return found;
   }
 }
