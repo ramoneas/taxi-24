@@ -3,9 +3,10 @@ import { PassengerService } from './passenger.service';
 import { PassengerController } from './passenger.controller';
 import { Passenger } from './entities/passenger.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DriverModule } from '../driver/driver.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Passenger])],
+  imports: [TypeOrmModule.forFeature([Passenger]), DriverModule],
   controllers: [PassengerController],
   providers: [PassengerService]
 })
