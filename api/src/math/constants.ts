@@ -20,3 +20,9 @@ export function getDistanceByCoordinates(coordinates: {
     ).dividedBy(1000),
   );
 }
+
+export function getRandomPrice(): number {
+  const max_val = 1000
+  const min_val = 100
+  return Math.floor(Math.random() * (max_val - min_val + 1)) + min_val;
+}
